@@ -1,0 +1,46 @@
+version: "3.9"
+services:
+  mongo:
+    image: mongo:3.6.8
+    container_name: mongodb-walmart
+    hostname: mongo
+    restart: "always"
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=productListUser
+      - MONGO_INITDB_ROOT_PASSWORD=productListPassword
+
+  mongopopulate:
+    image: mongo:3.6.8
+    depends_on:
+      - mongo
+    container_name: mongopopulater
+    restart: "no"
+    volumes:
+      - ./backend/scripts/database:/database
+    command: ./database/import.sh mongo
+
+  backend:
+    build: backend
+    hostname: backend
+    restart: "always"
+    depends_on:
+      - mongo
+    environment:
+    - NODE_ENV=development
+    - PORT=3000
+    - DB_URI=mongodb://productListUser:productListPassword@mongo:27017/promotions?authSource=admin
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build: frontend/
+    hostname: frontend
+    depends_on:
+      - backend
+    restart: "always"
+    environment: 
+      - REACT_APP_URL=http://backend:3000
+    ports:
+      - "5000:5000"
