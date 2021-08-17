@@ -1,8 +1,7 @@
+const {getProductsById, getProducts} = require('../../services/product.service')
 
-const {getProductsById, getProducts} = require('../../services/product.service');
-
-const buildOptions = (params) => {
-  const options = {};
+const buildOptions = params => {
+  const options = { page: 1, perPage: 10 }
   const page = Number(params.page)
   const perPage = Number(params.perPage)
   try {
@@ -12,38 +11,42 @@ const buildOptions = (params) => {
 
     if (!isNaN(perPage)) {
       options.perPage = perPage
-    } else console.log('error with the perPage')    
+    } else console.log('error with the perPage')
   } catch (error) {
-    console.log(error)    
+    console.log(error)
   }
   return options
 }
 
-const productsRouteController = async (ctx) => {
-  if ( ctx.request.query && ctx.request.query.searchParam) {
-    const { searchParam, page, perPage } = ctx.request.query
-    const options = buildOptions({ page, perPage })
+const productsRouteController = async ctx => {
+  const {searchParam, page, perPage} = ctx.request.query
+  const options = buildOptions({page, perPage})
+  if (ctx.request.query && ctx.request.query.searchParam) {
     if (isNaN(searchParam) && searchParam.length >= 3) {
-      const productsData = await getProducts( searchParam, options)
+      const productsData = await getProducts(searchParam, options)
       if (productsData.totalDocs > 0) {
         ctx.body = productsData
       } else {
-        ctx.body = 'there is not matches';
+        ctx.body = 'there is not matches'
       }
     } else if (!isNaN(searchParam)) {
       const productsData = await getProductsById(Number(searchParam))
       if (productsData._doc) {
         ctx.body = productsData
       } else {
-        ctx.body = 'there is not matches';
+        ctx.body = 'there is not matches'
       }
     } else {
-      ctx.status = 400;
+      ctx.status = 400
       console.log('search param error!')
     }
   } else {
-    ctx.status = 400;
-    console.log('there was an error!');
+    const productsData = await getProducts(searchParam, options)
+    if (productsData.totalDocs > 0) {
+      ctx.body = productsData
+    } else {
+      ctx.body = 'there is not matches'
+    }
   }
 }
 

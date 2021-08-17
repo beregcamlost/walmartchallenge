@@ -7,18 +7,22 @@ const isPalindrome = str => {
   return reverseStr === cleanStr
 }
 
-const getProducts = async (searchParam, options = {page: 1, perPage: 5}) => {
-  let resultDocs = await productScheme.paginate({
+const getProducts = async (searchParam, options) => {
+  let resultDocs
+  let query = {}
+  if (searchParam) {
+    query = {
       $or: [
         { brand: {$regex: searchParam, $options: 'i'} },
         { description: {$regex: searchParam, $options: 'i'} }
       ],
-    },
-    options,
-  )
-  if (isPalindrome(searchParam) && resultDocs.totalDocs > 0) {
-    resultDocs.docs.forEach(doc => doc._doc.discount = 0.5)
+    }
   }
+  resultDocs = await productScheme.paginate( query, options)
+  if (searchParam && isPalindrome(searchParam) && resultDocs.totalDocs > 0) {
+    resultDocs.docs.forEach(doc => doc._doc.discount = 0.5)
+  }  
+
   return resultDocs
 }
 const getProductsById = async id => {
