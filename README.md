@@ -20,7 +20,7 @@ This project was made using the following technologies:
 
 ## Installation
 
-First you would need https://www.docker.com/get-started already installed and https://docs.docker.com/compose/install/
+First you would need https://www.docker.com/get-started on version `Docker version 20.10.8, build 3967b7d28e` already installed and https://docs.docker.com/compose/install/ on version `docker-compose version 1.29.2`
 
 ### Arquitecture
 
